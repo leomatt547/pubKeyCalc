@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+{% block content %}
+<h3>ECC Dekripsi</h3>
+  <div class="col-sm-6 col-sm-offset-3">
+    <form onsubmit="return false">
+        <div id="plaintext-group" class="form-group">
+            <label for="plaintext">PlainText</label>
+            <input
+              type="text"
+              class="form-control"
+              id="plaintext"
+              name="plaintext"
+              placeholder="Masukkan Plain Teksnya"
+            />
+        </div>
+
+      <div id="stock-group" class="form-group">
+        <label for="stock">Stok</label>
+        <input
+          type="number"
+          class="form-control"
+          id="stock"
+          name="stock"
+          placeholder="Masukkan Angka"
+          min="0"
+          max="9999999999"
+        />
+      </div>
+      <div id="file-group" class="form-group">
+        <label for="file">File</label>
+        <input
+          type="file"
+          class="form-control"
+          id="file"
+          name="file"
+          accept="file/*"
+          onchange="previewFile()"
+        />
+      </div>
+
+      <button type="submit" class="btn btn-success" onclick="addItem()">
+        Submit
+      </button>
+      <br></br>
+      <div id="result-group" class="form-group">
+        <label for="result">Hasilnya adalah</label>
+        <div>
+          <textarea readonly
+            id="result"
+            name="result"
+            rows="auto"
+            cols="70"></textarea>
+        </div>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
