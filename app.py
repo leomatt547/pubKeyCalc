@@ -1,4 +1,6 @@
 from flask import *
+from src import paillier
+import json
 import os
 
 app = Flask(__name__)
@@ -21,6 +23,23 @@ def paillier_dekripsi():
 def paillier_genKey():
     return render_template("paillier_key.html")
 
+@app.route('/paillier/genKey', methods=["POST"])
+def paillier_genKey_post():
+    if (request.method == 'POST'):
+        angka_p = int(request.form.get("angka_p"))
+        angka_q = int(request.form.get("angka_q"))
+        angka_g = int(request.form.get("angka_g"))
+        response = paillier.getKunci(angka_p, angka_q, angka_g)
+        #print("panjang respons", len(response))
+        if(len(response)==4):
+            print(str(str(response[0])+" "+str(response[1])))
+            return render_template("paillier_key.html", \
+                encrypt=True, \
+                kunci_public=str(str(response[0])+" "+str(response[1])),\
+                kunci_private=str(str(response[2])+" "+str(response[3])))
+        else:
+            return render_template("paillier_key.html", encrypt=False, \
+                hasil=response)
 #ECC
 @app.route('/ecc/enkripsi')
 def ecc_enkripsi():
