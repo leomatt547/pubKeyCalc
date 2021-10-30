@@ -33,24 +33,27 @@ def getKunci(p, q, g):
             #Masuk ke rumus
             L_xnya = L_x(g, lamda, n)
             miunya = modulo_inverse(L_xnya, n)
-            return(g,n,lamda,miunya)
+            if(miunya != -1):
+                return(g,n,lamda,miunya)
+            else:
+                return("Maaf, pilih angka g yang lebih besar")
         else:
             return ("Maaf, pilih angka g yang lebih kecil dari " + str(n**2))
     else:
         return ("Maaf, pilih bilangan prima yang lain atau lebih p x q lebih besar dari 255")
 
 def enkripsi_huruf(m, r, g, n):
-    if((r < 0 and r >= n) or (pbb(r, n)!=1)):
-        return ("Maaf, pilih angka r yang lain di antara 0 hingga "+ str(n))
-    else:
-        return int(((g**m)%(n**2)) * ((r**n)%(n**2)) % (n**2))
+    return int(((g**m)%(n**2)) * ((r**n)%(n**2)) % (n**2))
 
 def enkripsi(pesan, r, g, n):
-    hasil = ""
-    for huruf in pesan:
-        hasil += str(enkripsi_huruf(ord(huruf), r, g, n))
-        hasil += " "
-    return hasil
+    if((r < 0 and r >= n) or (pbb(r, n)!=1)):
+        return -1
+    else:
+        hasil = ""
+        for huruf in pesan:
+            hasil += str(enkripsi_huruf(ord(huruf), r, g, n))
+            hasil += " "
+        return hasil
 
 def dekripsi_huruf(c, lamda, miu, n):
     return((L_x(c, lamda, n) * miu) % n)

@@ -15,9 +15,39 @@ def home():
 def paillier_enkripsi():
     return render_template("paillier_enkripsi.html")
 
+@app.route('/paillier/enkripsi', methods=["POST"])
+def paillier_enkripsi_post():
+    if (request.method == 'POST'):
+        plain = str(request.form.get("plain"))
+        angka_r = int(request.form.get("angka_r"))
+        angka_g = int(request.form.get("angka_g"))
+        angka_n = int(request.form.get("angka_n"))
+        response = paillier.enkripsi(plain, angka_r, angka_g, angka_n)
+        if(response == -1 or (angka_r < 0) or (angka_r >= angka_n)):
+            hasil = "Maaf, pilih angka r yang lain di antara 0 hingga "+ str(angka_n)
+            return render_template("paillier_enkripsi.html",\
+                encrypt=False\
+                , hasil=hasil)
+        else:
+             return render_template("paillier_enkripsi.html",\
+                encrypt=True\
+                , hasil=response)
+
 @app.route('/paillier/dekripsi')
 def paillier_dekripsi():
     return render_template("paillier_dekripsi.html")
+
+@app.route('/paillier/dekripsi', methods=["POST"])
+def paillier_dekripsi_post():
+    if (request.method == 'POST'):
+        cipher = str(request.form.get("cipher"))
+        angka_lamda = int(request.form.get("angka_lamda"))
+        angka_miu = int(request.form.get("angka_miu"))
+        angka_n = int(request.form.get("angka_n"))
+        response = paillier.dekripsi(cipher, angka_lamda, angka_miu, angka_n)
+        return render_template("paillier_dekripsi.html",\
+                encrypt=True\
+                , hasil=response)
 
 @app.route('/paillier/genKey')
 def paillier_genKey():

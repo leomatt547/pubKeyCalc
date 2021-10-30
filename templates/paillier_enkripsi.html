@@ -1,99 +1,170 @@
 {% extends "layout.html" %}
 {% block head %}
 <script type="text/javascript">
-  function do_ajax() {
-    formdata = new FormData();
-    formdata.append("angka_p", document.getElementById('angka_p'));
-    formdata.append("angka_q", document.getElementById('angka_q'));
-    formdata.append("angka_g", document.getElementById('angka_g'));
-    //formdata.append("angka_p", document.getElementById('angka_p'));
-    var req = new XMLHttpRequest();
-    var result = document.getElementById('result');
-    req.onreadystatechange = function()
-    {
-      if(this.readyState == 4 && this.status == 200) {
-        result.innerHTML = this.responseText;
-      } else {
-        result.innerHTML = "Tidak ada hasil";
-      }
-    }
+function download_cipher() {
+    text = document.getElementById("result-public").value
+    var pom = document.createElement('a');
+    pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    pom.setAttribute('download', "cipher.txt");
 
-    req.open('POST', './paillier/genKey', true);
-    req.setRequestHeader('content-type', 'multipart/form-data; charset=UTF-8');
-    req.send(formdata);
-  }
+    if (document.createEvent) {
+        var event = document.createEvent('MouseEvents');
+        event.initEvent('click', true, true);
+        pom.dispatchEvent(event);
+    }
+    else {
+        pom.click();
+    }
+}
+window.onload=function(){
+    document.getElementById("file").addEventListener('change', function() {
+        var fr = new FileReader();
+        fr.onload=function(){
+          const g = document.getElementById("angka_g");
+          const n = document.getElementById("angka_n");
+          dataArr = fr.result.split(" ");
+          g.value = dataArr[0];
+          n.value = dataArr[1];
+          //g.readOnly = true;
+          //n.readOnly = true;
+        }
+        fr.readAsText(this.files[0]);
+    });
+    document.getElementById("plain-file").addEventListener('change', function() {
+        var fr2 = new FileReader();
+        fr2.onload=function(){
+          const c = document.getElementById("plain");
+          c.value = fr2.result;
+          //n.readOnly = true;
+        }
+        fr2.readAsText(this.files[0]);
+    });
+}
 </script>
 {% endblock %}
 {% block content %}
-<h3>Pembangkitan Kunci Paillier</h3>
-  <div class="col-sm-6 col-sm-offset-3">
-    <form onsubmit="return false">
-      <div id="angka_p-group" class="form-group">
-          <label for="angka_p">Nilai P</label>
-          <input
-            type="number"
-            class="form-control"
-            id="angka_p"
-            name="angka_p"
-            placeholder="Masukkan Nilai P"
-            min="0"
-            max="99999999"
-          />
-        </div>
-
-      <div id="angka_q-group" class="form-group">
-        <label for="angka_q">Nilai Q</label>
-        <input
-          type="number"
-          class="form-control"
-          id="angka_q"
-          name="angka_q"
-          placeholder="Masukkan Nilai Q"
-          min="0"
-          max="99999999"
-        />
-      </div>
-
-      <div id="angka_g-group" class="form-group">
-        <label for="angka_g">Nilai G</label>
-        <input
-          type="number"
-          class="form-control"
-          id="angka_g"
-          name="angka_g"
-          placeholder="Masukkan Nilai G"
-          min="0"
-          max="99999999"
-        />
-      </div>
-
-      <div id="file-group" class="form-group">
-        <label for="file">File</label>
-        <input
-          type="file"
-          class="form-control"
-          id="file"
-          name="file"
-          accept="file/*"
-          onchange="previewFile()"
-        />
-      </div>
-
-      <button type="submit" class="btn btn-success" onclick="addItem()">
-        Submit
-      </button>
-      <br></br>
-      <div id="result-group" class="form-group">
-        <label for="result">Hasilnya adalah</label>
-        <div>
-          <textarea readonly
-            id="result"
-            name="result"
-            rows="auto"
-            cols="70"></textarea>
-        </div>
-        </div>
-    </form>
+<h3>Enkripsi Paillier</h3>
+{% if encrypt==False and hasil!="" %}
+<div id="emsg">
+  {{hasil}}
 </div>
+{% endif %}
+{% if encrypt %}
+<div id="result-group" class="form-group">
+  <label for="result-public">Hasil Enkripsi</label>
+  <div>
+    {% if encrypt %}
+    <textarea readonly
+      id="result-public"
+      name="result-public"
+      rows="5"
+      cols="70">{{hasil}}</textarea>
+    {% else %}
+    <textarea readonly
+      id="result-public"
+      name="result-public"
+      rows="5"
+      cols="70"></textarea>
+    {% endif %}
+  </div>
+  {% if encrypt %}
+    <button id="button-cipher" 
+    type="submit" 
+    value="submit" 
+    class="btn btn-success"
+    onclick = "download_cipher()">
+  {% else %}
+    <button id="button-cipher" 
+    type="submit" 
+    value="submit" 
+    disabled
+    class="btn btn-success" >
+  {% endif %}
+    Unduh Cipher Text
+  </button>
+</div>
+{% else %}
+<div class="col-sm-6 col-sm-offset-3">
+  <form id="form" action="/paillier/enkripsi" method="POST" 
+  enctype="multipart/form-data">
+  <div id="plain-file-group" class="form-group">
+    <label for="file">Masukkan Plain Text (Bila Ada)</label>
+    <input
+      type="file"
+      class="form-control"
+      id="plain-file"
+      name="plain-file"
+    />
+  </div>
+  <div id="plain-group" class="form-group">
+    <label for="plain">Plain Text</label>
+    <input
+    required
+      type="text"
+      class="form-control"
+      id="plain"
+      name="plain"
+      placeholder="Masukkan Plain Teks nya"
+      />
+  </div>
+  
+  <div id="angka_r-group" class="form-group">
+    <label for="angka_r">Nilai R</label>
+    <input
+    required
+      type="number"
+      class="form-control"
+      id="angka_r"
+      name="angka_r"
+      placeholder="Masukkan Nilai R"
+      min="0"
+      max="99999999"
+      />
+    </div>
+
+    <h4>Kunci Publik</h4>
+    <div id="file-group" class="form-group">
+      <label for="file">Masukkan File Kunci Publik</label>
+      <input
+        type="file"
+        class="form-control"
+        id="file"
+        name="file"
+      />
+    </div>
+    <div id="angka_g-group" class="form-group">
+      <label for="angka_g">Nilai G</label>
+      <input
+      required
+        type="number"
+        class="form-control"
+        id="angka_g"
+        name="angka_g"
+        placeholder="Masukkan Nilai G"
+        min="0"
+        max="99999999"
+      />
+    </div>
+        
+    <div id="angka_n-group" class="form-group">
+      <label for="angka_n">Nilai N</label>
+      <input
+      required
+        type="number"
+        class="form-control"
+        id="angka_n"
+        name="angka_n"
+        placeholder="Masukkan Nilai N"
+        min="0"
+        max="99999999"
+      />
+    </div>
+
+    <button type="submit" value="submit" class="btn btn-success" onclick="submitaja()">
+      Submit
+    </button>
+    </form>
+  </div>
+{% endif %}
 
 {% endblock %}
