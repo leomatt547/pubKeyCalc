@@ -1,0 +1,192 @@
+{% extends "layout.html" %}
+{% block head %}
+<script type="text/javascript">
+function download_plain() {
+    text = document.getElementById("result-private").value
+    var pom = document.createElement('a');
+    pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    pom.setAttribute('download', "plain.txt");
+
+    if (document.createEvent) {
+        var event = document.createEvent('MouseEvents');
+        event.initEvent('click', true, true);
+        pom.dispatchEvent(event);
+    }
+    else {
+        pom.click();
+    }
+}
+
+window.onload=function(){
+    document.getElementById("private-file").addEventListener('change', function() {
+        var fr = new FileReader();
+        fr.onload=function(){
+          const l = document.getElementById("angka_lamda");
+          const m = document.getElementById("angka_miu");
+          dataArr = fr.result.split(" ");
+          l.value = dataArr[0];
+          m.value = dataArr[1];
+          //l.readOnly = true;
+          //m.readOnly = true;
+        }
+        fr.readAsText(this.files[0]);
+    });
+    document.getElementById("public-file").addEventListener('change', function() {
+        var fr2 = new FileReader();
+        fr2.onload=function(){
+          const n = document.getElementById("angka_n");
+          dataArr = fr2.result.split(" ");
+          n.value = dataArr[1];
+          //n.readOnly = true;
+        }
+        fr2.readAsText(this.files[0]);
+    });
+    document.getElementById("cipher-file").addEventListener('change', function() {
+        var fr3 = new FileReader();
+        fr3.onload=function(){
+          const c = document.getElementById("cipher");
+          c.value = fr3.result;
+          //n.readOnly = true;
+        }
+        fr3.readAsText(this.files[0]);
+    });
+}
+</script>
+{% endblock %}
+{% block content %}
+<h3>Dekripsi Paillier</h3>
+{% if encrypt==False and hasil!="" %}
+<div id="emsg">
+  {{hasil}}
+</div>
+{% endif %}
+{% if encrypt %}
+<div id="result-group" class="form-group">
+  <label for="result-private">Hasil Dekripsi</label>
+  <div>
+    {% if encrypt %}
+    <textarea readonly
+      id="result-private"
+      name="result-private"
+      rows="5"
+      cols="70">{{hasil}}</textarea>
+    {% else %}
+    <textarea readonly
+      id="result-private"
+      name="result-private"
+      rows="5"
+      cols="70"></textarea>
+    {% endif %}
+  </div>
+  {% if encrypt %}
+    <button id="button-plain" 
+    type="submit" 
+    value="submit" 
+    class="btn btn-success"
+    onclick = "download_plain()">
+  {% else %}
+    <button id="button-plain" 
+    type="submit" 
+    value="submit" 
+    disabled
+    class="btn btn-success" >
+  {% endif %}
+    Unduh Plain Text
+  </button>
+</div>
+{% else %}
+<div class="col-sm-6 col-sm-offset-3">
+  <form id="form" action="/paillier/dekripsi" method="POST" 
+  enctype="multipart/form-data">
+  <div id="cipher-file-group" class="form-group">
+    <label for="file">Masukkan Cipher Text (Bila Ada)</label>
+    <input
+      type="file"
+      class="form-control"
+      id="cipher-file"
+      name="cipher-file"
+    />
+  </div>
+  <div id="cipher-group" class="form-group">
+    <label for="cipher">Cipher Text</label>
+    <input
+    required
+      type="text"
+      class="form-control"
+      id="cipher"
+      name="cipher"
+      placeholder="Masukkan Cipher Teks nya"
+      />
+  </div>
+  <br></br>
+  <h4>Kunci Publik</h4>
+  <div id="public-file-group" class="form-group">
+    <label for="file">Masukkan File Kunci Publik (Bila Ada)</label>
+    <input
+      type="file"
+      class="form-control"
+      id="public-file"
+      name="public-file"
+    />
+  </div>
+
+  <div id="angka_n-group" class="form-group">
+    <label for="angka_n">Nilai N</label>
+    <input
+    required
+      type="number"
+      class="form-control"
+      id="angka_n"
+      name="angka_n"
+      placeholder="Masukkan Nilai N"
+      min="0"
+      max="99999999"
+      />
+    </div>
+    <br></br>
+    <h4>Kunci Private (λ,μ)</h4>
+    <div id="private-file-group" class="form-group">
+      <label for="file">Masukkan File Kunci Private (Bila Ada)</label>
+      <input
+        type="file"
+        class="form-control"
+        id="private-file"
+        name="private-file"
+      />
+    </div>
+    <div id="angka_lamda-group" class="form-group">
+      <label for="angka_lamda">Nilai lambda(λ)</label>
+      <input
+      required
+        type="number"
+        class="form-control"
+        id="angka_lamda"
+        name="angka_lamda"
+        placeholder="Masukkan Nilai lambda(λ)"
+        min="0"
+        max="99999999"
+      />
+    </div>
+        
+    <div id="angka_miu-group" class="form-group">
+      <label for="angka_miu">Nilai Miu(μ)</label>
+      <input
+      required
+        type="number"
+        class="form-control"
+        id="angka_miu"
+        name="angka_miu"
+        placeholder="Masukkan Nilai Miu(μ)"
+        min="0"
+        max="99999999"
+      />
+    </div>
+
+    <button type="submit" value="submit" class="btn btn-success" onclick="submitaja()">
+      Submit
+    </button>
+    </form>
+  </div>
+{% endif %}
+
+{% endblock %}

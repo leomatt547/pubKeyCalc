@@ -23,18 +23,18 @@ function download_public() {
     pom.setAttribute('download', "kunci_public.pub");
 
     if (document.createEvent) {
-        var event = document.createEvent('MouseEvents');
-        event.initEvent('click', true, true);
-        pom.dispatchEvent(event);
+      var event = document.createEvent('MouseEvents');
+      event.initEvent('click', true, true);
+      pom.dispatchEvent(event);
     }
     else {
-        pom.click();
+      pom.click();
     }
 }
 </script>
 {% endblock %}
 {% block content %}
-<h3>Pembangkitan Kunci Paillier</h3>
+<h3>Pembangkitan Kunci ElGamal</h3>
 {% if encrypt==False and hasil!="" %}
 <div id="emsg">
   {{hasil}}
@@ -42,7 +42,7 @@ function download_public() {
 {% endif %}
 {% if encrypt %}
 <div id="result-group" class="form-group">
-  <label for="result-public">Kunci Publik (g,n)</label>
+  <label for="result-public">Kunci Publik (y,g,p)</label>
   <div>
     {% if encrypt %}
     <textarea readonly
@@ -75,7 +75,7 @@ function download_public() {
   </button>
 </div>
 <div id="result-group" class="form-group">
-  <label for="result-private">Kunci Privat (λ,μ)</label>
+  <label for="result-private">Kunci Privat (x, p)</label>
   <div>
     {% if encrypt %}
     <textarea readonly
@@ -109,7 +109,7 @@ function download_public() {
 </div>
 {% else %}
 <div class="col-sm-6 col-sm-offset-3">
-  <form id="form" action="/paillier/genKey" method="POST" 
+  <form id="form" action="/elgamal/genKey" method="POST" 
   enctype="multipart/form-data">
     <div id="angka_p-group" class="form-group">
         <label for="angka_p">Nilai P</label>
@@ -119,41 +119,41 @@ function download_public() {
           class="form-control"
           id="angka_p"
           name="angka_p"
-          placeholder="Masukkan Nilai P"
+          placeholder="Masukkan Nilai P (prima) yang lebih besar dari 255"
           min="0"
           max="99999999"
         />
       </div>
-
-    <div id="angka_q-group" class="form-group">
-      <label for="angka_q">Nilai Q</label>
-      <input
-      required
-        type="number"
-        class="form-control"
-        id="angka_q"
-        name="angka_q"
-        placeholder="Masukkan Nilai Q"
-        min="0"
-        max="99999999"
-      />
-    </div>
-
-    <div id="angka_g-group" class="form-group">
+      
+      <div id="angka_g-group" class="form-group">
       <label for="angka_g">Nilai G</label>
       <input
       required
-        type="number"
+      type="number"
         class="form-control"
         id="angka_g"
         name="angka_g"
         placeholder="Masukkan Nilai G"
         min="0"
         max="99999999"
-      />
-    </div>
+        />
+      </div>
+      
+      <div id="angka_x-group" class="form-group">
+        <label for="angka_x">Nilai X</label>
+        <input
+        required
+          type="number"
+          class="form-control"
+          id="angka_x"
+          name="angka_x"
+          placeholder="Masukkan Nilai X"
+          min="0"
+          max="99999999"
+        />
+      </div>
 
-    <button type="submit" value="submit" class="btn btn-success" onclick="submitaja()">
+      <button type="submit" value="submit" class="btn btn-success" onclick="submitaja()">
       Submit
     </button>
     </form>

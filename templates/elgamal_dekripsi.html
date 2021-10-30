@@ -1,11 +1,11 @@
 {% extends "layout.html" %}
 {% block head %}
 <script type="text/javascript">
-function download_cipher() {
-    text = document.getElementById("result-public").value
+function download_plain() {
+    text = document.getElementById("result-private").value
     var pom = document.createElement('a');
     pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-    pom.setAttribute('download', "cipher.txt");
+    pom.setAttribute('download', "plain.txt");
 
     if (document.createEvent) {
         var event = document.createEvent('MouseEvents');
@@ -16,24 +16,25 @@ function download_cipher() {
         pom.click();
     }
 }
+
 window.onload=function(){
-    document.getElementById("file").addEventListener('change', function() {
+    document.getElementById("private-file").addEventListener('change', function() {
         var fr = new FileReader();
         fr.onload=function(){
-          const g = document.getElementById("angka_g");
-          const n = document.getElementById("angka_n");
+          const x = document.getElementById("angka_x");
+          const p = document.getElementById("angka_p");
           dataArr = fr.result.split(" ");
-          g.value = dataArr[0];
-          n.value = dataArr[1];
-          //g.readOnly = true;
-          //n.readOnly = true;
+          x.value = dataArr[0];
+          p.value = dataArr[1];
+          //l.readOnly = true;
+          //m.readOnly = true;
         }
         fr.readAsText(this.files[0]);
     });
-    document.getElementById("plain-file").addEventListener('change', function() {
+    document.getElementById("cipher-file").addEventListener('change', function() {
         var fr2 = new FileReader();
         fr2.onload=function(){
-          const c = document.getElementById("plain");
+          const c = document.getElementById("cipher");
           c.value = fr2.result;
           //n.readOnly = true;
         }
@@ -43,7 +44,7 @@ window.onload=function(){
 </script>
 {% endblock %}
 {% block content %}
-<h3>Enkripsi Paillier</h3>
+<h3>Dekripsi ElGamal</h3>
 {% if encrypt==False and hasil!="" %}
 <div id="emsg">
   {{hasil}}
@@ -51,110 +52,96 @@ window.onload=function(){
 {% endif %}
 {% if encrypt %}
 <div id="result-group" class="form-group">
-  <label for="result-public">Hasil Enkripsi</label>
+  <label for="result-private">Hasil Dekripsi</label>
   <div>
     {% if encrypt %}
     <textarea readonly
-      id="result-public"
-      name="result-public"
+      id="result-private"
+      name="result-private"
       rows="5"
       cols="70">{{hasil}}</textarea>
     {% else %}
     <textarea readonly
-      id="result-public"
-      name="result-public"
+      id="result-private"
+      name="result-private"
       rows="5"
       cols="70"></textarea>
     {% endif %}
   </div>
   {% if encrypt %}
-    <button id="button-cipher" 
+    <button id="button-plain" 
     type="submit" 
     value="submit" 
     class="btn btn-success"
-    onclick = "download_cipher()">
+    onclick = "download_plain()">
   {% else %}
-    <button id="button-cipher" 
+    <button id="button-plain" 
     type="submit" 
     value="submit" 
     disabled
     class="btn btn-success" >
   {% endif %}
-    Unduh Cipher Text
+    Unduh Plain Text
   </button>
 </div>
 {% else %}
 <div class="col-sm-6 col-sm-offset-3">
-  <form id="form" action="/paillier/enkripsi" method="POST" 
+  <form id="form" action="/elgamal/dekripsi" method="POST" 
   enctype="multipart/form-data">
-  <div id="plain-file-group" class="form-group">
-    <label for="file">Masukkan Plain Text (Bila Ada)</label>
+  <div id="cipher-file-group" class="form-group">
+    <label for="file">Masukkan Cipher Text (Bila Ada)</label>
     <input
       type="file"
       class="form-control"
-      id="plain-file"
-      name="plain-file"
+      id="cipher-file"
+      name="cipher-file"
     />
   </div>
-  <div id="plain-group" class="form-group">
-    <label for="plain">Plain Text</label>
+  <div id="cipher-group" class="form-group">
+    <label for="cipher">Cipher Text</label>
     <input
     required
       type="text"
       class="form-control"
-      id="plain"
-      name="plain"
-      placeholder="Masukkan Plain Teks nya"
+      id="cipher"
+      name="cipher"
+      placeholder="Masukkan Cipher Teks nya"
       />
   </div>
-  
-  <div id="angka_r-group" class="form-group">
-    <label for="angka_r">Nilai R</label>
-    <input
-    required
-      type="number"
-      class="form-control"
-      id="angka_r"
-      name="angka_r"
-      placeholder="Masukkan Nilai R"
-      min="0"
-      max="99999999"
-      />
-    </div>
 
-    <h4>Kunci Publik</h4>
-    <div id="file-group" class="form-group">
-      <label for="file">Masukkan File Kunci Publik</label>
+  <h4>Kunci Private (x,p)</h4>
+    <div id="private-file-group" class="form-group">
+      <label for="file">Masukkan File Kunci Private (Bila Ada)</label>
       <input
         type="file"
         class="form-control"
-        id="file"
-        name="file"
+        id="private-file"
+        name="private-file"
       />
     </div>
-    <div id="angka_g-group" class="form-group">
-      <label for="angka_g">Nilai G</label>
+    <div id="angka_x-group" class="form-group">
+      <label for="angka_x">Nilai X</label>
       <input
       required
         type="number"
         class="form-control"
-        id="angka_g"
-        name="angka_g"
-        placeholder="Masukkan Nilai G"
+        id="angka_x"
+        name="angka_x"
+        placeholder="Masukkan Nilai X"
         min="0"
         max="99999999"
       />
     </div>
         
-    <div id="angka_n-group" class="form-group">
-      <label for="angka_n">Nilai N</label>
+    <div id="angka_p-group" class="form-group">
+      <label for="angka_p">Nilai P</label>
       <input
       required
         type="number"
         class="form-control"
-        id="angka_n"
-        name="angka_n"
-        placeholder="Masukkan Nilai N"
+        id="angka_p"
+        name="angka_p"
+        placeholder="Masukkan Nilai P"
         min="0"
         max="99999999"
       />

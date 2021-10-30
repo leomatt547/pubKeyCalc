@@ -21,10 +21,12 @@ window.onload=function(){
         var fr = new FileReader();
         fr.onload=function(){
           const g = document.getElementById("angka_g");
-          const n = document.getElementById("angka_n");
+          const y = document.getElementById("angka_y");
+          const p = document.getElementById("angka_p");
           dataArr = fr.result.split(" ");
           g.value = dataArr[0];
-          n.value = dataArr[1];
+          y.value = dataArr[1];
+          p.value = dataArr[2];
           //g.readOnly = true;
           //n.readOnly = true;
         }
@@ -43,7 +45,7 @@ window.onload=function(){
 </script>
 {% endblock %}
 {% block content %}
-<h3>Enkripsi Paillier</h3>
+<h3>Enkripsi ElGamal</h3>
 {% if encrypt==False and hasil!="" %}
 <div id="emsg">
   {{hasil}}
@@ -85,7 +87,7 @@ window.onload=function(){
 </div>
 {% else %}
 <div class="col-sm-6 col-sm-offset-3">
-  <form id="form" action="/paillier/enkripsi" method="POST" 
+  <form id="form" action="/elgamal/enkripsi" method="POST" 
   enctype="multipart/form-data">
   <div id="plain-file-group" class="form-group">
     <label for="file">Masukkan Plain Text (Bila Ada)</label>
@@ -108,15 +110,15 @@ window.onload=function(){
       />
   </div>
   
-  <div id="angka_r-group" class="form-group">
-    <label for="angka_r">Nilai R</label>
+  <div id="angka_k-group" class="form-group">
+    <label for="angka_k">Nilai K</label>
     <input
     required
       type="number"
       class="form-control"
-      id="angka_r"
-      name="angka_r"
-      placeholder="Masukkan Nilai R"
+      id="angka_k"
+      name="angka_k"
+      placeholder="Masukkan Nilai K"
       min="0"
       max="99999999"
       />
@@ -146,15 +148,29 @@ window.onload=function(){
       />
     </div>
         
-    <div id="angka_n-group" class="form-group">
-      <label for="angka_n">Nilai N</label>
+    <div id="angka_y-group" class="form-group">
+      <label for="angka_y">Nilai Y</label>
       <input
       required
         type="number"
         class="form-control"
-        id="angka_n"
-        name="angka_n"
-        placeholder="Masukkan Nilai N"
+        id="angka_y"
+        name="angka_y"
+        placeholder="Masukkan Nilai Y"
+        min="0"
+        max="99999999"
+      />
+    </div>
+
+    <div id="angka_p-group" class="form-group">
+      <label for="angka_y">Nilai P</label>
+      <input
+      required
+        type="number"
+        class="form-control"
+        id="angka_p"
+        name="angka_p"
+        placeholder="Masukkan Nilai P"
         min="0"
         max="99999999"
       />
