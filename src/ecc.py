@@ -45,7 +45,7 @@ class ECC:
 	def __mod_pow(self, x: int, y: int) -> int:
 		'''
 		mengembalikan x pangkat y modulo self.mod, O(log y)
-		prekondisi: 0 <= x, y < self.mod
+		prekondisi: y >= 0
 		'''
 		ret = 1;
 		while y > 0:
@@ -59,6 +59,7 @@ class ECC:
 		'''
 		mengembalikan 1/x modulo self.mod, O(log mod)
 		prekondisi: 0 <= x < self.mod
+		memanfaatkan fermat's little theorem
 		'''
 		return self.__mod_pow(x, self.mod - 2)
 
@@ -96,15 +97,26 @@ class ECC:
 			k /= 2
 		return ret
 
-	def __encrypt_one_char(self, c: str, pub_key: tuple[int, int]) -> Tuple[Tuple[int, int], Tuple[int, int]]:
+	def __encrypt_one_char(self, c: str, public_key: tuple[int, int]) -> Tuple[Tuple[int, int], Tuple[int, int]]:
 		'''
 		mengembalikan pasangan titik hasil enkripsi satu huruf c
 		'''
 		pc = self.char_to_point[c]
 		k = random.randint(1, self.mod - 1) # kata paper (link di atas) k = 0 gausah dihandle
 		p1 = self.__point_scalar_prod(self.base, k)
-		p2 = self.__point_add(pc, self.__point_scalar_prod(pub_key, k))
+		p2 = self.__point_add(pc, self.__point_scalar_prod(public_key, k))
 		return (p1, p2)
+
+	def __decrypt_one_char(self, c: Tuple[Tuple[int, int], Tuple[int, int]], private_key: int) -> str:
+		'''
+		mengembalikan karakter hasil dekripsi satu titik c
+		'''
+		p1 = c[0]
+		p2 = c[1]
+		sub = self.__point_scalar_prod(c[0], private_key)
+		sub = (sub[0], -sub[1] % self.mod) # invers titik dibuat dengan mengalikan ordinat dengan -1
+		p = self.__point_add(p2, sub)
+		return self.point_to_char[p]
 
 	def generate_public_key(self, private_key: int) -> Tuple[int, int]:
 		'''
@@ -112,6 +124,16 @@ class ECC:
 		public key berupa titik di kurva elliptik
 		'''
 		return self.__point_scalar_prod(self.base, private_key)
+
+	def generate_random_key_pair(self) -> Tuple[int, Tuple[int, int]]:
+		'''
+		menghasilkan pasangan (kunci privat, kunci publik acak)
+		kunci privat berupa bilangan bulat
+		kunci publik berupa titik di kurva elliptik
+		'''
+		private_key = random.randint(1, self.mod - 1) # kata paper (link di atas) k = 0 gausah dihandle
+		public_key = self.generate_public_key(private_key)
+		return (private_key, public_key)
 
 	def encrypt(self, plaintext: str, public_key: tuple[int, int]) -> List[Tuple[Tuple[int, int], Tuple[int, int]]]:
 		'''
@@ -129,19 +151,14 @@ class ECC:
 		'''
 		plaintext = ""
 		for cs in ciphertext:
-			p1 = cs[0]
-			p2 = cs[1]
-			sub = self.__point_scalar_prod(cs[0], private_key)
-			sub = (sub[0], -sub[1] % self.mod) # invers titik dibuat dengan mengalikan ordinat dengan -1
-			p = self.__point_add(p2, sub)
-			plaintext += self.point_to_char[p]
+			plaintext += self.__decrypt_one_char(cs, private_key)
 		return plaintext
 
 if __name__ == "__main__":
 	ecc = ECC(9, 7, 2011) # kurva elliptik y**2 = x**3 + 9x + 7 (mod 2011)
-	plaintext = "lalalayeyeye"
+	plaintext = "Semoga nilai kriptografi IF4020 A amiin"
 	private_key = 4
 	public_key = ecc.generate_public_key(private_key)
 	ciphertext = ecc.encrypt(plaintext, public_key)
-	print("hasil encrypt: ", ciphertext)
-	print("hasil decrypt: ", ecc.decrypt(ciphertext, private_key))
+	print("hasil encrypt:", ciphertext)
+	print("hasil decrypt:", ecc.decrypt(ciphertext, private_key))
