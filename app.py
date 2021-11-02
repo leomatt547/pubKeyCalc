@@ -146,10 +146,10 @@ def paillier_dekripsi():
 def paillier_dekripsi_post():
     if (request.method == 'POST'):
         cipher = str(request.form.get("cipher"))
-        angka_x = int(request.form.get("angka_x"))
-        angka_p = int(request.form.get("angka_p"))
+        angka_lamda = int(request.form.get("angka_lamda"))
+        angka_miu = int(request.form.get("angka_miu"))
         angka_n = int(request.form.get("angka_n"))
-        response = paillier.dekripsi(cipher, angka_x, angka_p, angka_n)
+        response = paillier.dekripsi(cipher, angka_lamda, angka_miu, angka_n)
         return render_template("paillier_dekripsi.html",\
                 encrypt=True\
                 , hasil=response)
