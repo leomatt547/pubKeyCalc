@@ -34,9 +34,9 @@ function download_public() {
 </script>
 {% endblock %}
 {% block content %}
-<h3>Pembangkitan Kunci ECC ElGamal</h3>
+<h3>Pembangkitan Kunci RSA</h3>
 <div id="result-group" class="form-group">
-  <label for="result-public">Kunci Publik (koordinat titik)</label>
+  <label for="result-public">Kunci Publik (e, n)</label>
   <div>
     {% if public_key is defined %}
     <textarea readonly
@@ -69,14 +69,14 @@ function download_public() {
   </button>
 </div>
 <div id="result-group" class="form-group">
-  <label for="result-private">Kunci Privat</label>
+  <label for="result-private">Kunci Privat (d, n)</label>
   <div>
     {% if private_key is defined %}
     <textarea readonly
       id="result-private"
       name="result-private"
       rows="2"
-      cols="70">{{private_key}}</textarea>
+      cols="70">{{private_key[0]}} {{private_key[1]}}</textarea>
     {% else %}
     <textarea readonly
       id="result-private"
@@ -102,7 +102,7 @@ function download_public() {
   </button>
 </div>
 <div class="col-sm-6 col-sm-offset-3">
-  <form id="form" action="/ecc/genKey" method="POST" 
+  <form id="form" action="/rsa/genKey" method="POST" 
   enctype="multipart/form-data">
     <button type="submit" value="submit" class="btn btn-success" onclick="submitaja()">
       Bangkitkan Kunci

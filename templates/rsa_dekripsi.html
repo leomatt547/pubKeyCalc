@@ -1,0 +1,157 @@
+{% extends "layout.html" %}
+{% block head %}
+<script type="text/javascript">
+function download_plain() {
+    text = document.getElementById("result-private").value
+    var pom = document.createElement('a');
+    pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    pom.setAttribute('download', "plain.txt");
+
+    if (document.createEvent) {
+        var event = document.createEvent('MouseEvents');
+        event.initEvent('click', true, true);
+        pom.dispatchEvent(event);
+    }
+    else {
+        pom.click();
+    }
+}
+
+window.onload=function(){
+    document.getElementById("private-file").addEventListener('change', function() {
+        var fr = new FileReader();
+        fr.onload=function(){
+          const d = document.getElementById("angka_d");
+          const n = document.getElementById("angka_n");
+          dataArr = fr.result.split(/\s+/);
+          d.value = dataArr[0];
+          n.value = dataArr[1];
+          //l.readOnly = true;
+          //m.readOnly = true;
+        }
+        fr.readAsText(this.files[0]);
+    });
+    document.getElementById("cipher-file").addEventListener('change', function() {
+        var fr2 = new FileReader();
+        fr2.onload=function(){
+          const c = document.getElementById("cipher");
+          c.value = fr2.result;
+          //n.readOnly = true;
+        }
+        fr2.readAsText(this.files[0]);
+    });
+}
+</script>
+{% endblock %}
+{% block content %}
+<h3>Dekripsi RSA</h3>
+{% if encrypt==False and hasil!="" %}
+<div id="emsg">
+  {{hasil}}
+</div>
+{% endif %}
+{% if encrypt %}
+<div id="result-group" class="form-group">
+  <label for="result-private">Hasil Dekripsi</label>
+  <div>
+    {% if encrypt %}
+    <textarea readonly
+      id="result-private"
+      name="result-private"
+      rows="5"
+      cols="70">{{hasil}}</textarea>
+    {% else %}
+    <textarea readonly
+      id="result-private"
+      name="result-private"
+      rows="5"
+      cols="70"></textarea>
+    {% endif %}
+  </div>
+  {% if encrypt %}
+    <button id="button-plain" 
+    type="submit" 
+    value="submit" 
+    class="btn btn-success"
+    onclick = "download_plain()">
+  {% else %}
+    <button id="button-plain" 
+    type="submit" 
+    value="submit" 
+    disabled
+    class="btn btn-success" >
+  {% endif %}
+    Unduh Plain Text
+  </button>
+</div>
+{% else %}
+<div class="col-sm-6 col-sm-offset-3">
+  <form id="form" action="/rsa/dekripsi" method="POST" 
+  enctype="multipart/form-data">
+  <div id="cipher-file-group" class="form-group">
+    <label for="file">Masukkan File Cipher Text (Bila Ada)</label>
+    <input
+      type="file"
+      class="form-control"
+      id="cipher-file"
+      name="cipher-file"
+    />
+  </div>
+  <div id="cipher-group" class="form-group">
+    <label for="cipher">Cipher Text</label>
+    <input
+    required
+      type="text"
+      class="form-control"
+      id="cipher"
+      name="cipher"
+      placeholder="Masukkan Cipher Teks nya"
+      />
+  </div>
+
+  <h4>Kunci Private (x,p)</h4>
+    <div id="private-file-group" class="form-group">
+      <label for="file">Masukkan File Kunci Private (Bila Ada)</label>
+      <input
+        type="file"
+        class="form-control"
+        id="private-file"
+        name="private-file"
+      />
+    </div>
+    <div id="angka_d-group" class="form-group">
+      <label for="angka_d">Nilai d</label>
+      <input
+      required
+        type="number"
+        class="form-control"
+        id="angka_d"
+        name="angka_d"
+        placeholder="Masukkan Nilai d"
+        min="1"
+        max="9999999999"
+      />
+    </div>
+        
+    <div id="angka_n-group" class="form-group">
+      <label for="angka_n">Nilai n</label>
+      <input
+      required
+        type="number"
+        class="form-control"
+        id="angka_n"
+        name="angka_n"
+        placeholder="Masukkan Nilai n"
+        min="1"
+        max="9999999999"
+      />
+    </div>
+
+    <button type="submit" value="submit" class="btn btn-success" onclick="submitaja()">
+      Submit
+    </button>
+    </form>
+  </div>
+{% endif %}
+
+{% endblock %}

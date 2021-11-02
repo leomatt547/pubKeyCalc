@@ -117,9 +117,10 @@ class ECC:
 		sub = (sub[0], -sub[1] % self.mod) # invers titik dibuat dengan mengalikan ordinat dengan -1
 		p = self.__point_add(p2, sub)
 		if p not in self.point_to_char:
-			# pr: tambahin exception
-			pass
-		return self.point_to_char[p]
+			# return random char untuk mengacaukan plaintext
+			return chr(random.randint(0, 255))
+		else:
+			return self.point_to_char[p]
 
 	def generate_public_key(self, private_key: int) -> Tuple[int, int]:
 		'''

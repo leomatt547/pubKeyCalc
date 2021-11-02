@@ -20,8 +20,11 @@ window.onload=function(){
     document.getElementById("file").addEventListener('change', function() {
         var fr = new FileReader();
         fr.onload=function(){
-          const public_key_container = document.getElementById("public_key");
-          public_key_container.value = fr.result;
+          const e = document.getElementById("angka_e");
+          const n = document.getElementById("angka_n");
+          dataArr = fr.result.split(/\s+/);
+          e.value = dataArr[0];
+          n.value = dataArr[1];
           //g.readOnly = true;
           //n.readOnly = true;
         }
@@ -40,7 +43,7 @@ window.onload=function(){
 </script>
 {% endblock %}
 {% block content %}
-<h3>Enkripsi ECC ElGamal</h3>
+<h3>Enkripsi RSA</h3>
 {% if encrypt==False and hasil!="" %}
 <div id="emsg">
   {{hasil}}
@@ -55,7 +58,7 @@ window.onload=function(){
       id="result-public"
       name="result-public"
       rows="5"
-      cols="70">{% for ((a, b), (c, d)) in ciphertext %}{{a}} {{b}} {{c}} {{d}}&#13;&#10;{% endfor %}</textarea>
+      cols="70">{% for x in hasil %}{{x}} {% endfor %}</textarea>
     {% else %}
     <textarea readonly
       id="result-public"
@@ -82,52 +85,70 @@ window.onload=function(){
 </div>
 {% else %}
 <div class="col-sm-6 col-sm-offset-3">
-  <form id="form" action="/ecc/enkripsi" method="POST" 
+  <form id="form" action="/rsa/enkripsi" method="POST" 
   enctype="multipart/form-data">
-    <div id="plain-file-group" class="form-group">
-      <label for="file">Masukkan File Plain Text (Bila Ada)</label>
+  <div id="plain-file-group" class="form-group">
+    <label for="file">Masukkan File Plain Text (Bila Ada)</label>
+    <input
+      type="file"
+      class="form-control"
+      id="plain-file"
+      name="plain-file"
+    />
+  </div>
+  <div id="plain-group" class="form-group">
+    <label for="plain">Plain Text</label>
+    <input
+    required
+      type="text"
+      class="form-control"
+      id="plain"
+      name="plain"
+      placeholder="Masukkan Plain Teks nya"
+      />
+  </div>
+    <h4>Kunci Publik</h4>
+    <div id="file-group" class="form-group">
+      <label for="file">Masukkan File Kunci Publik (Bila Ada)</label>
       <input
         type="file"
         class="form-control"
-        id="plain-file"
-        name="plain-file"
+        id="file"
+        name="file"
       />
     </div>
-    <div id="plain-group" class="form-group">
-      <label for="plain">Plain Text</label>
+        
+    <div id="angka_e-group" class="form-group">
+      <label for="angka_e">Nilai e</label>
       <input
       required
-        type="text"
+        type="number"
         class="form-control"
-        id="plain"
-        name="plain"
-        placeholder="Masukkan Plain Teks nya"
-        />
+        id="angka_e"
+        name="angka_e"
+        placeholder="Masukkan Nilai e"
+        min="1"
+        max="9999999999"
+      />
     </div>
-      <h4>Kunci Publik</h4>
-      <div id="file-group" class="form-group">
-        <label for="file">Masukkan File Kunci Publik (Bila Ada)</label>
-        <input
-          type="file"
-          class="form-control"
-          id="file"
-          name="file"
-        />
-      </div>
-      <div id="kunci-publik-group" class="form-group">
-        <label for="public_key">Kunci Publik</label>
-        <input
-          type="text"
-          class="form-control"
-          id="public_key"
-          name="public_key"
-          placeholder="Masukkan kunci publik (dua buah bilangan bulat non-negatif)"
-        />
-      </div>
 
-      <button type="submit" value="submit" class="btn btn-success" onclick="submitaja()">
-        Enkripsi
-      </button>
+    <div id="angka_n-group" class="form-group">
+      <label for="angka_n">Nilai n</label>
+      <input
+      required
+        type="number"
+        class="form-control"
+        id="angka_n"
+        name="angka_n"
+        placeholder="Masukkan Nilai n"
+        min="1"
+        max="9999999999"
+      />
+    </div>
+
+    <button type="submit" value="submit" class="btn btn-success" onclick="submitaja()">
+      Submit
+    </button>
     </form>
   </div>
 {% endif %}

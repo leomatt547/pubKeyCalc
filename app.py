@@ -16,6 +16,45 @@ app.secret_key = os.urandom(24)
 def home():
     return render_template("index.html")
 
+#RSA
+
+@app.route('/rsa/enkripsi')
+def rsa_enkripsi():
+    return render_template("rsa_enkripsi.html")
+
+@app.route('/rsa/enkripsi', methods=["POST"])
+def rsa_enkripsi_post():
+    if request.method == "POST":
+        public_key = (int(request.form.get("angka_e")), int(request.form.get("angka_n")))
+        plaintext = request.form.get("plain")
+        ciphertext = rsa.encrypt(plaintext, public_key)
+        return render_template("rsa_enkripsi.html", encrypt=True, hasil=ciphertext)
+    return render_template("rsa_enkripsi.html")
+
+@app.route('/rsa/dekripsi')
+def rsa_dekripsi():
+    return render_template("rsa_dekripsi.html")
+
+@app.route('/rsa/dekripsi', methods=["POST"])
+def rsa_dekripsi_post():
+    if request.method == "POST":
+        private_key = (int(request.form.get("angka_d")), int(request.form.get("angka_n")))
+        ciphertext = [int(x) for x in request.form.get("cipher").split()]
+        plaintext = rsa.decrypt(ciphertext, private_key)
+        return render_template("rsa_dekripsi.html", encrypt=True, hasil=plaintext)
+    return render_template("rsa_dekripsi.html")
+
+@app.route('/rsa/genKey')
+def rsa_genKey():
+    return render_template("rsa_key.html")
+
+@app.route('/rsa/genKey', methods=["POST"])
+def rsa_genKey_post():
+    if request.method == "POST":
+        public_key, private_key = rsa.generate_random_key_pair()
+        print(public_key, private_key)
+        return render_template("rsa_key.html", public_key=public_key, private_key=private_key)
+
 #ElGamal
 @app.route('/elgamal/enkripsi')
 def elgamal_enkripsi():
