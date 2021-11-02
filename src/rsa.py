@@ -24,7 +24,9 @@ class RSA:
 				mpf[i] = i
 				self.small_primes.append(i)
 			j = 0;
-			while j < len(self.small_primes) and self.small_primes[j] <= mpf[i] and i*self.small_primes[j] < MAX_PRIME:
+			while j < len(self.small_primes) and \
+			self.small_primes[j] <= mpf[i] and \
+			i*self.small_primes[j] < MAX_PRIME:
 				mpf[i * self.small_primes[j]] = self.small_primes[j]
 				j += 1
 
@@ -40,14 +42,6 @@ class RSA:
 			x = x * x % m
 			y //= 2
 		return ret
-
-	def __mod_inv(self, x: int, m: int) -> int:
-		'''
-		mengembalikan 1/x modulo m, O(log m)
-		prekondisi: 0 <= x < m, x relatif prima dengan m
-		memanfaatkan konsekuensi teorema euler tentang totient function
-		'''
-		return self.__mod_pow(x, m - 1, m)
 
 	def __gcd(self, x: int, y: int) -> int:
 		'''
@@ -91,7 +85,7 @@ class RSA:
 		assert(self.__gcd(e, phi) == 1)
 
 		# hitung kunci privat
-		# pake bruteforce dulu, mungkin ntar bakal diganti extended euclid
+		# pake bruteforce dulu, mungkin nanti bakal diganti extended euclid
 		d = 0
 		k = 0
 		while (1 + k * phi) % e != 0:

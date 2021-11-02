@@ -19,7 +19,6 @@ class ECC:
 		self.mod = m
 
 		# buat dictionary pemetaan huruf ASCII ke titik kurva
-		# sekarang pake cara custom dulu, bingung sama metode Kolbitz
 		self.points = []
 		ys = {}
 		for y in range(self.mod):
@@ -40,7 +39,7 @@ class ECC:
 			self.point_to_char[pt] = chr(c)
 
 		# ambil satu titik sebagai basis
-		self.base = self.points[-1]
+		self.base = self.points[len(self.points)//2]
 
 	def __mod_pow(self, x: int, y: int) -> int:
 		'''
@@ -71,14 +70,16 @@ class ECC:
 			m = ((p[1] - q[1]) % self.mod) * self.__mod_inv((p[0] - q[0]) % self.mod) % self.mod
 			x = (m*m - p[0] - q[0]) % self.mod
 			y = (m * (p[0] - x) - p[1]) % self.mod
-			assert y*y % self.mod == (x*x*x + self.eq_a*x + self.eq_b) % self.mod, "(x, y) = ({}, {})".format(x, y)
+			assert y*y % self.mod == (x*x*x + self.eq_a*x + self.eq_b) % self.mod, \
+			"(x, y) = ({}, {})".format(x, y)
 			return (x, y)
 		else:
 			# harusnya di kasus ini p = q
 			l = ((3 * p[0] * p[0] + self.eq_a) % self.mod) * self.__mod_inv(2 * p[1] % self.mod) % self.mod
 			x = (l*l - 2*p[0]) % self.mod
 			y = (l * (p[0] - x) - p[1]) % self.mod
-			assert y*y % self.mod == (x*x*x + self.eq_a*x + self.eq_b) % self.mod, "(x, y) = ({}, {})".format(x, y)
+			assert y*y % self.mod == (x*x*x + self.eq_a*x + self.eq_b) % self.mod, \
+			"(x, y) = ({}, {})".format(x, y)
 			return (x, y) 
 
 	def __point_scalar_prod(self, p: tuple[int, int], k: int) -> Tuple[int, int]:
@@ -127,7 +128,8 @@ class ECC:
 		menghasilkan public key dari private_key
 		public key berupa titik di kurva elliptik
 		'''
-		return self.__point_scalar_prod(self.base, private_key)
+		public_key = self.__point_scalar_prod(self.base, private_key)
+		return public_key
 
 	def generate_random_key_pair(self) -> Tuple[int, Tuple[int, int]]:
 		'''
@@ -144,7 +146,9 @@ class ECC:
 		mengembalikan cipherteks hasil enkripsi plaintext dengan kunci public_key
 		cipherteks berisi pasangan titik untuk setiap huruf
 		'''
-		if public_key not in self.points:
+		lhs = y*y % self.mod
+		rhs = (x*x*x + self.eq_a*x + self.eq_b) % self.mod
+		if lhs != rhs:
 			raise ValueError("Kunci publik yang diberikan tidak valid!")
 		ciphertext = []
 		for i, c in enumerate(plaintext):
