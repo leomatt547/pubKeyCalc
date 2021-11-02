@@ -25,8 +25,6 @@ window.onload=function(){
           dataArr = fr.result.split(" ");
           g.value = dataArr[0];
           n.value = dataArr[1];
-          //g.readOnly = true;
-          //n.readOnly = true;
         }
         fr.readAsText(this.files[0]);
     });
@@ -98,14 +96,16 @@ window.onload=function(){
   </div>
   <div id="plain-group" class="form-group">
     <label for="plain">Plain Text</label>
-    <input
+    <textarea
     required
       type="text"
       class="form-control"
       id="plain"
       name="plain"
       placeholder="Masukkan Plain Teks nya"
-      />
+      rows="5"
+      cols="70"
+    ></textarea>
   </div>
   
   <div id="angka_r-group" class="form-group">
