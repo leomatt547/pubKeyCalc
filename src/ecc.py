@@ -116,6 +116,9 @@ class ECC:
 		sub = self.__point_scalar_prod(c[0], private_key)
 		sub = (sub[0], -sub[1] % self.mod) # invers titik dibuat dengan mengalikan ordinat dengan -1
 		p = self.__point_add(p2, sub)
+		if p not in self.point_to_char:
+			# pr: tambahin exception
+			pass
 		return self.point_to_char[p]
 
 	def generate_public_key(self, private_key: int) -> Tuple[int, int]:
@@ -140,6 +143,9 @@ class ECC:
 		mengembalikan cipherteks hasil enkripsi plaintext dengan kunci public_key
 		cipherteks berisi pasangan titik untuk setiap huruf
 		'''
+		if public_key not in self.points:
+			# pr: tambahin exception
+			pass
 		ciphertext = []
 		for i, c in enumerate(plaintext):
 			ciphertext.append(self.__encrypt_one_char(c, public_key))

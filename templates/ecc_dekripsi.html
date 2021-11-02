@@ -1,58 +1,147 @@
 {% extends "layout.html" %}
+{% block head %}
+<script type="text/javascript">
+function download_plain() {
+    text = document.getElementById("result-private").value
+    var pom = document.createElement('a');
+    pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    pom.setAttribute('download', "plain.txt");
+
+    if (document.createEvent) {
+        var event = document.createEvent('MouseEvents');
+        event.initEvent('click', true, true);
+        pom.dispatchEvent(event);
+    }
+    else {
+        pom.click();
+    }
+}
+
+window.onload=function(){
+    document.getElementById("private-file").addEventListener('change', function() {
+        var fr = new FileReader();
+        fr.onload=function(){
+          const private_key_container = document.getElementById("private_key");
+          private_key_container.value = fr.result;
+          //l.readOnly = true;
+          //m.readOnly = true;
+        }
+        fr.readAsText(this.files[0]);
+    });
+    document.getElementById("cipher-file").addEventListener('change', function() {
+        var fr2 = new FileReader();
+        fr2.onload=function(){
+          const c = document.getElementById("cipher");
+          c.value = fr2.result;
+          //n.readOnly = true;
+        }
+        fr2.readAsText(this.files[0]);
+    });
+}
+</script>
+{% endblock %}
 {% block content %}
-<h3>ECC Dekripsi</h3>
-  <div class="col-sm-6 col-sm-offset-3">
-    <form onsubmit="return false">
-        <div id="plaintext-group" class="form-group">
-            <label for="plaintext">PlainText</label>
-            <input
-              type="text"
-              class="form-control"
-              id="plaintext"
-              name="plaintext"
-              placeholder="Masukkan Plain Teksnya"
-            />
-        </div>
-
-      <div id="stock-group" class="form-group">
-        <label for="stock">Stok</label>
-        <input
-          type="number"
-          class="form-control"
-          id="stock"
-          name="stock"
-          placeholder="Masukkan Angka"
-          min="0"
-          max="9999999999"
-        />
-      </div>
-      <div id="file-group" class="form-group">
-        <label for="file">File</label>
-        <input
-          type="file"
-          class="form-control"
-          id="file"
-          name="file"
-          accept="file/*"
-          onchange="previewFile()"
-        />
-      </div>
-
-      <button type="submit" class="btn btn-success" onclick="addItem()">
-        Submit
-      </button>
-      <br></br>
-      <div id="result-group" class="form-group">
-        <label for="result">Hasilnya adalah</label>
-        <div>
-          <textarea readonly
-            id="result"
-            name="result"
-            rows="auto"
-            cols="70"></textarea>
-        </div>
-        </div>
-    </form>
+<h3>Dekripsi ECC ElGamal</h3>
+{% if encrypt==False and hasil!="" %}
+<div id="emsg">
+  {{hasil}}
 </div>
+{% endif %}
+{% if encrypt %}
+<div id="result-group" class="form-group">
+  <label for="result-private">Hasil Dekripsi</label>
+  <div>
+    {% if encrypt %}
+    <textarea readonly
+      id="result-private"
+      name="result-private"
+      rows="5"
+      cols="70">{{hasil}}</textarea>
+    {% else %}
+    <textarea readonly
+      id="result-private"
+      name="result-private"
+      rows="5"
+      cols="70"></textarea>
+    {% endif %}
+  </div>
+  {% if encrypt %}
+    <button id="button-plain" 
+    type="submit" 
+    value="submit" 
+    class="btn btn-success"
+    onclick = "download_plain()">
+  {% else %}
+    <button id="button-plain" 
+    type="submit" 
+    value="submit" 
+    disabled
+    class="btn btn-success" >
+  {% endif %}
+    Unduh Plain Text
+  </button>
+</div>
+{% else %}
+<div class="col-sm-6 col-sm-offset-3">
+  <form id="form" action="/ecc/dekripsi" method="POST" 
+  enctype="multipart/form-data">
+  <div id="cipher-file-group" class="form-group">
+    <label for="file">Masukkan File Cipher Text (Bila Ada)</label>
+    <input
+      type="file"
+      class="form-control"
+      id="cipher-file"
+      name="cipher-file"
+    />
+  </div>
+  <div id="cipher-group" class="form-group">
+    <label for="cipher">Cipher Text</label>
+    {# <input
+    required
+      type="text"
+      class="form-control"
+      id="cipher"
+      name="cipher"
+      placeholder="Masukkan Cipher Teks nya"
+      /> #}
+    <textarea
+    required
+    id="cipher"
+    name="cipher"
+    rows="5"
+    cols="70"
+    placeholder="Masukkan Cipher Teks nya">{{hasil}}</textarea>
+  </div>
+
+  <h4>Kunci Privat</h4>
+    <div id="private-file-group" class="form-group">
+      <label for="file">Masukkan File Kunci Privat (Bila Ada)</label>
+      <input
+        type="file"
+        class="form-control"
+        id="private-file"
+        name="private-file"
+      />
+    </div>
+    <div id="angka_x-group" class="form-group">
+      <label for="private_key">Kunci Privat</label>
+      <input
+      required
+        type="number"
+        class="form-control"
+        id="private_key"
+        name="private_key"
+        placeholder="Masukkan Kunci Privat (bilangan bulat positif)"
+        min="1"
+        max="99999999"
+      />
+    </div>
+
+    <button type="submit" value="submit" class="btn btn-success" onclick="submitaja()">
+      Submit
+    </button>
+    </form>
+  </div>
+{% endif %}
 
 {% endblock %}

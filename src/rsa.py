@@ -3,6 +3,7 @@ Rivest-Shamir-Adleman
 '''
 import random
 from typing import Tuple, List
+import os
 
 class RSA:
 	def __init__(self):
@@ -10,12 +11,12 @@ class RSA:
 		konstruktor
 		'''
 		# muat daftar bilangan prima besar
-		prime_file_path = "./../assets/prime-list.txt"
+		prime_file_path = os.path.join(os.path.abspath("."), "./assets/prime-list.txt")
 		with open(prime_file_path, "r") as f:
 			self.large_primes = [int(x) for x in f.read().split()]
 
 		# bangkitkan prima-prima kecil menggunakan linear sieve
-		MAX_PRIME = 1001
+		MAX_PRIME = 10001
 		mpf = [0 for i in range(MAX_PRIME)] # mpf[i] = minimum prime factor i
 		self.small_primes = []
 		for i in range(2, MAX_PRIME):

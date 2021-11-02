@@ -1,7 +1,13 @@
 from flask import *
 from src import paillier,elgamal
+from src.rsa import RSA
+from src.ecc import ECC
 import json
 import os
+
+# initialize rsa & ecc
+rsa = RSA()
+ecc = ECC(9, 7, 2011) # kurva elliptik pilihan
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -133,13 +139,58 @@ def paillier_genKey_post():
 def ecc_enkripsi():
     return render_template("ecc_enkripsi.html")
 
+@app.route('/ecc/enkripsi', methods=["POST"])
+def ecc_enkripsi_post():
+    if request.method == "POST":
+        try:
+            plaintext = request.form.get("plain")
+            public_key_list = request.form.get("public_key").split()
+            if len(public_key_list) != 2:
+                raise ValueError
+            public_key_list = [int(x) for x in public_key_list]
+            for x in public_key_list:
+                if x <= 0:
+                    raise ValueError
+            public_key = tuple(public_key_list) 
+            # print(public_key)
+            ciphertext = ecc.encrypt(plaintext, public_key) # mungkin perlu handle kalo error
+            return render_template("ecc_enkripsi.html", encrypt=True, ciphertext=ciphertext)
+        except ValueError:
+            message = "Kunci publik harus merupakan pasangan bilangan bulat non-negatif!"
+            return render_template("ecc_enkripsi.html", encrypt=False, hasil=message)
+    return render_template("ecc_enkripsi.html")
+
 @app.route('/ecc/dekripsi')
 def ecc_dekripsi():
     return render_template("ecc_dekripsi.html")
+
+@app.route('/ecc/dekripsi', methods=["POST"])
+def ecc_dekripsi_post():
+    if request.method == "POST":
+        try:
+            raw_ciphertext = request.form.get("cipher").split()
+            ciphertext = []
+            for i in range(0, len(raw_ciphertext), 4):
+                ciphertext.append(((int(raw_ciphertext[i]), int(raw_ciphertext[i+1])),\
+                    (int(raw_ciphertext[i+2]), int(raw_ciphertext[i+3]))))
+            private_key = int(request.form.get("private_key"))
+            plaintext = ecc.decrypt(ciphertext, private_key) # mungkin perlu handle kalo error
+            return render_template("ecc_dekripsi.html", encrypt=True, hasil=plaintext)
+        except (ValueError, IndexError) as e:
+            message = "Cipher text harus berisi empat bilangan untuk setiap baris!"
+            return render_template("ecc_dekripsi.html", encrypt=False, hasil=message)
+
 
 @app.route('/ecc/genKey')
 def ecc_genKey():
     return render_template("ecc_key.html")
     
+@app.route('/ecc/genKey', methods=["POST"])
+def ecc_genKey_post():
+    if request.method == "POST":
+        private_key, public_key = ecc.generate_random_key_pair()
+        return render_template("ecc_key.html", private_key=private_key, public_key=public_key)
+    return render_template("ecc_key.html")
+
 if __name__ == "__main__":
     app.run(debug=True)
