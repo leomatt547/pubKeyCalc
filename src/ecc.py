@@ -39,7 +39,7 @@ class ECC:
 			self.point_to_char[pt] = chr(c)
 
 		# ambil satu titik sebagai basis
-		self.base = self.points[len(self.points)//2]
+		self.base = self.points[-1]
 
 	def __mod_pow(self, x: int, y: int) -> int:
 		'''
@@ -95,7 +95,7 @@ class ECC:
 			if k % 2 == 1:
 				ret = self.__point_add(ret, p)
 			p = self.__point_add(p, p)
-			k /= 2
+			k //= 2
 		return ret
 
 	def __encrypt_one_char(self, c: str, public_key: tuple[int, int]) -> Tuple[Tuple[int, int], Tuple[int, int]]:
@@ -146,6 +146,7 @@ class ECC:
 		mengembalikan cipherteks hasil enkripsi plaintext dengan kunci public_key
 		cipherteks berisi pasangan titik untuk setiap huruf
 		'''
+		x, y = public_key
 		lhs = y*y % self.mod
 		rhs = (x*x*x + self.eq_a*x + self.eq_b) % self.mod
 		if lhs != rhs:
@@ -172,3 +173,8 @@ if __name__ == "__main__":
 	ciphertext = ecc.encrypt(plaintext, public_key)
 	print("hasil encrypt:", ciphertext)
 	print("hasil decrypt:", ecc.decrypt(ciphertext, private_key))
+	tmp = public_key
+	for i in range(1, 30):
+		print(ecc._ECC__point_scalar_prod(public_key, i))
+		tmp = ecc._ECC__point_add(tmp, public_key)
+		print(tmp)
