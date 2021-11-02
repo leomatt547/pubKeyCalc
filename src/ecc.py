@@ -145,8 +145,7 @@ class ECC:
 		cipherteks berisi pasangan titik untuk setiap huruf
 		'''
 		if public_key not in self.points:
-			# pr: tambahin exception
-			pass
+			raise ValueError("Kunci publik yang diberikan tidak valid!")
 		ciphertext = []
 		for i, c in enumerate(plaintext):
 			ciphertext.append(self.__encrypt_one_char(c, public_key))

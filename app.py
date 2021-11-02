@@ -185,17 +185,16 @@ def ecc_enkripsi_post():
             plaintext = request.form.get("plain")
             public_key_list = request.form.get("public_key").split()
             if len(public_key_list) != 2:
-                raise ValueError
+                raise ValueError("Kunci publik harus merupakan pasangan bilangan bulat non-negatif!")
             public_key_list = [int(x) for x in public_key_list]
             for x in public_key_list:
                 if x <= 0:
-                    raise ValueError
+                    raise ValueError("Kunci publik harus merupakan pasangan bilangan bulat non-negatif!")
             public_key = tuple(public_key_list) 
             # print(public_key)
             ciphertext = ecc.encrypt(plaintext, public_key) # mungkin perlu handle kalo error
             return render_template("ecc_enkripsi.html", encrypt=True, ciphertext=ciphertext)
-        except ValueError:
-            message = "Kunci publik harus merupakan pasangan bilangan bulat non-negatif!"
+        except ValueError as message:
             return render_template("ecc_enkripsi.html", encrypt=False, hasil=message)
     return render_template("ecc_enkripsi.html")
 
